@@ -5,17 +5,16 @@ description = "Intelligent log analysis service built with FastAPI."
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-    "fastapi==0.135.1",
-    "starlette==0.52.1",
-    "uvicorn[standard]==0.34.0",
-    "pydantic==2.10.4",
-    "pydantic-settings==2.7.0",
-    "python-dotenv==1.0.1",
+    "fastapi",
+    "uvicorn[standard]",
+    "pydantic",
+    "pydantic-settings",
+    "python-dotenv",
     # Database — SQLAlchemy 2.0 async stack targeting Neon/Supabase/Railway Postgres
-    "sqlalchemy[asyncio]==2.0.36",
-    "asyncpg==0.30.0",
-    "greenlet==3.1.1",
+    "sqlalchemy[asyncio]",
+    "asyncpg",
+    "greenlet",
     # Rate limiting — slowapi wraps the limits library; redis provides Redis storage
-    "slowapi==0.1.9",
-    "redis==5.2.1",
+    "slowapi",
+    "redis",
 ]
