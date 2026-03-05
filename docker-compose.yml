@@ -1,0 +1,124 @@
+networks:
+  lognis_net:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
+  # Isolates the container-built node_modules from the host mount.
+  # Reset with: docker volume rm lognis_frontend_node_modules
+  frontend_node_modules:
+
+services:
+  # ── Postgres ────────────────────────────────────────────────────────────────
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-lognis}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-lognis}
+      POSTGRES_DB: ${POSTGRES_DB:-lognis}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - lognis_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-lognis}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # ── Redis ───────────────────────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    networks:
+      - lognis_net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # ── Backend (FastAPI) ────────────────────────────────────────────────────────
+  backend:
+    build:
+      context: ./apps/backend
+      dockerfile: Dockerfile
+      args:
+        # Pass proxy from host env when set (e.g. on FPT network).
+        # Leave unset on Railway / any network where direct download works.
+        - HTTP_PROXY
+        - HTTPS_PROXY
+        - NO_PROXY
+    restart: unless-stopped
+    volumes:
+      - ./apps/backend:/app
+    working_dir: /app
+    # Override with dev server + hot-reload; production CMD is in the Dockerfile
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8080 --reload
+    env_file:
+      - apps/backend/.env
+    environment:
+      # Override DB/Redis URLs to point at sibling containers
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-lognis}:${POSTGRES_PASSWORD:-lognis}@db:5432/${POSTGRES_DB:-lognis}
+      REDIS_URL: redis://redis:6379
+    ports:
+      - "8080:8080"
+    networks:
+      - lognis_net
+    # Use FPT DNS so containers can resolve external hostnames (e.g. Neon DB).
+    # Falls back gracefully on non-FPT networks (Railway uses its own resolver).
+    dns:
+      - 210.245.31.136
+      - 210.245.0.186
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # ── Frontend (Next.js) ───────────────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./apps/frontend
+      dockerfile: Dockerfile
+      target: development
+      args:
+        # Pass proxy from host env when set (e.g. on FPT network).
+        # Leave unset on Railway / any network where direct download works.
+        - HTTP_PROXY
+        - HTTPS_PROXY
+        - NO_PROXY
+    restart: unless-stopped
+    volumes:
+      - ./apps/frontend:/app
+      # Named volume keeps container-built node_modules isolated from the host.
+      # The dev-stage CMD always runs npm ci into this volume at startup, so
+      # packages stay in sync with package-lock.json automatically.
+      # Reset with: docker volume rm lognis_frontend_node_modules (forces clean reinstall)
+      - frontend_node_modules:/app/node_modules
+    env_file:
+      - apps/frontend/.env.local
+    environment:
+      # Browser talks directly to the forwarded backend port on the host
+      NEXT_PUBLIC_API_URL: http://localhost:8080
+      # Runtime proxy — lets the Next.js server-side code (Clerk, etc.) reach
+      # external APIs through the FPT proxy when HTTP_PROXY is set on the host.
+      # Has no effect when the variable is unset (Railway / direct internet).
+      HTTP_PROXY: ${HTTP_PROXY:-}
+      HTTPS_PROXY: ${HTTPS_PROXY:-}
+      NO_PROXY: ${NO_PROXY:-localhost,127.0.0.1,backend}
+    ports:
+      - "3000:3000"
+    networks:
+      - lognis_net
+    # Use FPT DNS so the Next.js Node.js runtime can resolve api.clerk.com directly.
+    # Falls back gracefully on non-FPT networks (Railway uses its own resolver).
+    dns:
+      - 210.245.31.136
+      - 210.245.0.186
+    depends_on:
+      - backend

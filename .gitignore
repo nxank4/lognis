@@ -1,0 +1,98 @@
+# ── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+*.egg
+.eggs/
+*.whl
+*.so
+*.dylib
+MANIFEST
+pip-wheel-metadata/
+share/python-wheels/
+*.spec
+
+# ── Virtual environments ──────────────────────────────────────────────────────
+.venv/
+venv/
+venv*/
+env/
+env*/
+ENV/
+.python-version
+
+# ── Environment / secrets  ← NEVER commit these ──────────────────────────────
+.env
+.env.*
+!.env.example
+.env.local
+*.pem
+*.key
+*.p12
+*.pfx
+secrets/
+credentials.json
+
+# ── uv ────────────────────────────────────────────────────────────────────────
+# Keep uv.lock committed; ignore only local uv cache
+.uv/
+
+# ── Testing ───────────────────────────────────────────────────────────────────
+.pytest_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.tox/
+nosetests.xml
+test-results/
+junit*.xml
+
+# ── Type checkers / linters ───────────────────────────────────────────────────
+.mypy_cache/
+.ruff_cache/
+.pytype/
+pyrightconfig.json
+
+# ── Docker ────────────────────────────────────────────────────────────────────
+.dockerignore.local
+docker-compose.override.yml
+docker-compose.local.yml
+
+# ── Logs ──────────────────────────────────────────────────────────────────────
+*.log
+*.log.*
+logs/
+
+# ── Database / runtime artefacts ─────────────────────────────────────────────
+*.db
+*.sqlite
+*.sqlite3
+*.sql.gz
+dump.sql
+
+# ── IDEs ──────────────────────────────────────────────────────────────────────
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+*.sublime-project
+*.sublime-workspace
+
+# ── OS artefacts ──────────────────────────────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini

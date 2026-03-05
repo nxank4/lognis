@@ -1,0 +1,22 @@
+# Dependencies (will be installed fresh in Docker)
+node_modules/
+
+# Next.js build output
+.next/
+out/
+
+# Environment files (injected at runtime)
+.env
+.env.*
+.env.local
+.env.*.local
+
+# Dev / tooling
+.git/
+.gitignore
+README.md
+
+# Misc
+*.log
+npm-debug.log*
+.DS_Store

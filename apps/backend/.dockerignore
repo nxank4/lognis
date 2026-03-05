@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+.ruff_cache/
+.mypy_cache/
+.pytest_cache/
+*.egg-info/
+dist/
+build/
+
+# Environment
+.env
+.env.*
+
+# Dev / tooling
+.python-version
+uv.lock
+pyproject.toml
+main.py
+
+# Misc
+.git/
+.gitignore
+README.md

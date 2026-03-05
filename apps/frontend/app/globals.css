@@ -1,0 +1,87 @@
+@import "tailwindcss";
+@source "../node_modules/@tremor/react/dist/esm";
+
+/* ── Design tokens ─────────────────────────────────────────────────────────── */
+:root {
+  --background:   #0a0e1a;
+  --foreground:   #e2e8f0;
+  --card:         #0f1729;
+  --card-border:  #1e293b;
+  --muted:        #1e293b;
+  --muted-fg:     #94a3b8;
+  --accent:       #3b82f6;
+  --accent-hover: #2563eb;
+  --accent-glow:  rgba(59, 130, 246, 0.15);
+}
+
+/* ── Tailwind v4 theme bridge ───────────────────────────────────────────────
+   Exposes CSS vars as Tailwind utility classes used in chart components      */
+@theme inline {
+  --color-background:   var(--background);
+  --color-foreground:   var(--foreground);
+  --color-card:         var(--card);
+  --color-card-border:  var(--card-border);
+  --color-muted:        var(--muted);
+  --color-muted-fg:     var(--muted-fg);
+  --color-accent:       var(--accent);
+  --color-accent-hover: var(--accent-hover);
+}
+
+/* ── Base reset ─────────────────────────────────────────────────────────────  */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  color-scheme: dark;
+}
+
+/* ── Skip-to-main link — visible only on keyboard focus ─────────────────────  */
+.skip-to-main {
+  position: absolute;
+  top: -9999px;
+  left: 8px;
+  z-index: 9999;
+  padding: 8px 16px;
+  background: var(--accent);
+  color: #fff;
+  border-radius: 0 0 6px 6px;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+}
+.skip-to-main:focus-visible {
+  top: 0;
+  outline: none;
+}
+
+/* ── Scrollbar ──────────────────────────────────────────────────────────────  */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--muted);
+}
+::-webkit-scrollbar-thumb {
+  background: #475569;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
+/* ── Log keyword syntax colors ──────────────────────────────────────────────  */
+.log-keyword-error { color: #f87171; }
+.log-keyword-warn  { color: #fbbf24; }
+.log-keyword-info  { color: #60a5fa; }
+.log-keyword-debug { color: #a78bfa; }
+
+/* ── Recharts tooltip dark override ─────────────────────────────────────────  */
+.recharts-tooltip-wrapper .recharts-default-tooltip {
+  background:    #0f1729 !important;
+  border:        1px solid #1e293b !important;
+  border-radius: 8px !important;
+  color:         #e2e8f0 !important;
+  font-size:     12px !important;
+}
