@@ -7,17 +7,15 @@
  *
  * This has no effect when HTTP_PROXY is unset (Railway / direct internet).
  *
- * NOTE: `eval('import(...)')` is intentional — it makes the dynamic import
- * opaque to Turbopack/webpack so the bundler does not try to statically resolve
- * 'undici' at compile time (it is a runtime dep, not in the app's bundle).
+ * Guarded by NEXT_RUNTIME === 'nodejs' so this code never runs (or is
+ * evaluated) in the Edge runtime, where dynamic imports via eval are forbidden.
  */
 export async function register() {
+  if (process.env.NEXT_RUNTIME !== "nodejs") return;
+
   const proxy = process.env.HTTP_PROXY || process.env.HTTPS_PROXY;
   if (proxy) {
-    // eslint-disable-next-line no-eval
-    const { setGlobalDispatcher, ProxyAgent } = await (eval(
-      'import("undici")'
-    ) as Promise<typeof import("undici")>);
+    const { setGlobalDispatcher, ProxyAgent } = await import("undici");
     setGlobalDispatcher(new ProxyAgent(proxy));
     console.info(`[instrumentation] HTTP proxy configured: ${proxy}`);
   }
