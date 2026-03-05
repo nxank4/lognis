@@ -49,14 +49,20 @@ async def lifespan(app: FastAPI):  # type: ignore[type-arg]
     """
     from app.core.database import init_db  # deferred to keep startup clean
 
-    try:
-        await init_db()
-    except Exception:
+    if not settings.DATABASE_URL:
         logger.warning(
-            "Database initialisation failed at startup — "
-            "history persistence will be unavailable until connectivity is restored.",
-            exc_info=True,
+            "DATABASE_URL is not set — skipping database initialisation. "
+            "History persistence will be unavailable until DATABASE_URL is configured."
         )
+    else:
+        try:
+            await init_db()
+        except Exception:
+            logger.warning(
+                "Database initialisation failed at startup — "
+                "history persistence will be unavailable until connectivity is restored.",
+                exc_info=True,
+            )
 
     yield  # application is running
 
